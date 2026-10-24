@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls, useScroll } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 const links = [
   ["Home", "/"],
@@ -15,6 +15,38 @@ const links = [
   ["News", "/news"],
 ];
 
+function RaceStartLights({ cycle }: { cycle: number }) {
+  const controls = useAnimationControls();
+
+  useEffect(() => {
+    let cancelled = false;
+    async function runSequence() {
+      await controls.start("lit");
+      await new Promise((resolve) => window.setTimeout(resolve, 220));
+      if (!cancelled) await controls.start("out");
+    }
+    void runSequence();
+    return () => { cancelled = true; };
+  }, [controls, cycle]);
+
+  return (
+    <div className="race-lights">
+      {[0, 1, 2, 3, 4].map((light) => (
+        <motion.span
+          key={`${cycle}-${light}`}
+          custom={light}
+          variants={{
+            lit: (index: number) => ({ backgroundColor: "#e10600", transition: { duration: 0.13, delay: index * 0.11 } }),
+            out: (index: number) => ({ backgroundColor: "#242529", transition: { duration: 0.15, delay: (4 - index) * 0.1 } }),
+          }}
+          initial={{ backgroundColor: "#242529" }}
+          animate={controls}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function SiteFrame({
   children,
   season,
@@ -25,12 +57,29 @@ export default function SiteFrame({
   updatedAt?: string;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [transitioning, setTransitioning] = useState(false);
+  const [transitionKey, setTransitionKey] = useState(0);
+  const { scrollYProgress } = useScroll();
+
+  const navigate = useCallback((href: string) => {
+    if (transitioning) return;
+    if (href === pathname) {
+      setMenuOpen(false);
+      return;
+    }
+    setMenuOpen(false);
+    setTransitionKey((value) => value + 1);
+    setTransitioning(true);
+    const destination = new URL(href, window.location.href);
+    if (!destination.searchParams.has("season")) destination.searchParams.set("season", String(season));
+    window.setTimeout(() => router.push(`${destination.pathname}${destination.search}${destination.hash}`), 1450);
+  }, [pathname, router, season, transitioning]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -43,7 +92,29 @@ export default function SiteFrame({
   useEffect(() => {
     setQuery(new URLSearchParams(window.location.search).get("q") ?? "");
     setMenuOpen(false);
-  }, [pathname]);
+    setTransitioning(false);
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    function handleInternalNavigation(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor || anchor.target || anchor.hasAttribute("download")) return;
+
+      const destination = new URL(anchor.href, window.location.href);
+      if (destination.origin !== window.location.origin) return;
+      if (destination.pathname === window.location.pathname && destination.hash) return;
+      if (destination.pathname === window.location.pathname && destination.search === window.location.search) return;
+
+      event.preventDefault();
+      navigate(`${destination.pathname}${destination.search}${destination.hash}`);
+    }
+
+    document.addEventListener("click", handleInternalNavigation, true);
+    return () => document.removeEventListener("click", handleInternalNavigation, true);
+  }, [navigate]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -55,17 +126,7 @@ export default function SiteFrame({
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = query.trim();
-    if (value) router.push(`/search?q=${encodeURIComponent(value)}`);
-  }
-
-  function navigate(href: string) {
-    if (href === pathname) {
-      setMenuOpen(false);
-      return;
-    }
-    setMenuOpen(false);
-    setTransitioning(true);
-    window.setTimeout(() => router.push(`${href}${href.includes("?") ? "&" : "?"}season=${season}`), 580);
+    if (value) navigate(`/search?q=${encodeURIComponent(value)}`);
   }
 
   const stamp = updatedAt
@@ -86,8 +147,12 @@ export default function SiteFrame({
               type="button"
               onClick={() => navigate(href)}
               className={pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)) ? "nav-link active" : "nav-link"}
+              aria-current={pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)) ? "page" : undefined}
             >
               {label}
+              {(pathname === href || (href !== "/" && pathname.startsWith(`${href}/`))) && (
+                <motion.span className="nav-active-indicator" layoutId="apex-nav-indicator" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
+              )}
             </button>
           ))}
         </nav>
@@ -104,7 +169,19 @@ export default function SiteFrame({
           <Link className="season-chip" href={`/standings?season=${season}`}><span className="live-dot" /> {season} SEASON</Link>
         </div>
       </header>
-      {children}
+      <motion.div className="scroll-progress" style={{ scaleX: scrollYProgress }} aria-hidden="true" />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          className="page-route"
+          key={`${pathname}?${searchParams.toString()}`}
+          initial={{ opacity: 0, y: 18, filter: "blur(12px)", scale: 0.992 }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
+          exit={{ opacity: 0, y: -10, filter: "blur(8px)", scale: 0.996 }}
+          transition={{ duration: 0.46, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
       <footer className="footer">
         <div className="section-wrap">
           <div className="footer-top">
@@ -125,17 +202,16 @@ export default function SiteFrame({
         {transitioning && (
           <motion.div
             className="race-transition"
-            initial={{ y: "-100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ duration: 0.3, ease: [0.76, 0, 0.24, 1] }}
-            onAnimationComplete={() => { if (transitioning) window.setTimeout(() => setTransitioning(false), 380); }}
+            initial={{ clipPath: "inset(0 0 100% 0)" }}
+            animate={{ clipPath: "inset(0 0 0% 0)" }}
+            exit={{ clipPath: "inset(0 0 100% 0)" }}
+            transition={{ duration: 0.48, ease: [0.76, 0, 0.24, 1] }}
             aria-label="Race start page transition"
           >
             <div className="race-start">
               <span>APEX RACING HUB <i>·</i> RACE START</span>
-              <div className="race-lights">{[0, 1, 2, 3, 4].map((light) => <motion.span key={light} animate={{ backgroundColor: ["#242529", "#e10600", "#e10600", "#242529"] }} transition={{ duration: 0.95, delay: light * 0.06, repeat: 1, repeatDelay: 0.04 }} />)}</div>
-              <strong>LIGHTS OUT</strong>
+              <RaceStartLights cycle={transitionKey} />
+              <motion.strong initial={{ opacity: 0, y: 8, letterSpacing: "0.8em" }} animate={{ opacity: [0, 1, 1, 0], y: [8, 0, 0, -6], letterSpacing: ["0.8em", "0.28em", "0.28em", "0.5em"] }} transition={{ duration: 1.4, times: [0, 0.18, 0.72, 1], ease: "easeOut" }}>LIGHTS OUT</motion.strong>
             </div>
           </motion.div>
         )}

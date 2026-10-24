@@ -3,7 +3,7 @@ import EmptySeason from "../components/EmptySeason";
 import PageHeading from "../components/PageHeading";
 import Reveal from "../components/Reveal";
 import SiteFrame from "../components/SiteFrame";
-import { CURRENT_SEASON, getSeasonData, getTeamColor, resolveSeason } from "../lib/f1";
+import { getCurrentSeason, getSeasonData, getTeamColor, resolveSeason } from "../lib/f1";
 
 export const revalidate = 1800;
 const constructorsHistory: Record<string, { titles: number; story: string }> = {
@@ -30,11 +30,11 @@ export default async function TeamsPage({ searchParams }: { searchParams?: { sea
             <h2>{team.name}</h2>
             <p>{history?.story ?? `${team.name} is part of the ${season} FIA Formula One World Championship grid.`}</p>
             <div className="pro-team-stats"><span><b>{team.points}</b><small>POINTS</small></span><span><b>{team.wins}</b><small>WINS</small></span><span><b>{history?.titles ?? "—"}</b><small>CONSTRUCTOR TITLES</small></span></div>
-            <div className="pro-team-drivers"><span>2026 DRIVERS</span>{teamDrivers.length ? teamDrivers.map((driver) => <span key={driver.id}>{driver.firstName} <strong>{driver.lastName}</strong></span>) : <strong>Line-up not published</strong>}</div>
+            <div className="pro-team-drivers"><span>{season} DRIVERS</span>{teamDrivers.length ? teamDrivers.map((driver) => <span key={driver.id}>{driver.firstName} <strong>{driver.lastName}</strong></span>) : <strong>Line-up not published</strong>}</div>
             <span className="pro-team-link">EXPLORE THE TEAM ↗</span>
           </Link></Reveal>;
         })}</div> : <EmptySeason season={season} />}
-        {season === CURRENT_SEASON && <p className="method-note">Current points, race wins and entries refresh from the official-results dataset. Historical constructor title counts are provided as editorial context.</p>}
+        {season === getCurrentSeason() && <p className="method-note">Current points, race wins and entries refresh from the official-results dataset. Historical constructor title counts are provided as editorial context.</p>}
       </main>
     </SiteFrame>
   );

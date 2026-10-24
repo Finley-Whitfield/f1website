@@ -2,7 +2,7 @@ import DriverExplorer from "../components/DriverExplorer";
 import EmptySeason from "../components/EmptySeason";
 import PageHeading from "../components/PageHeading";
 import SiteFrame from "../components/SiteFrame";
-import { CURRENT_SEASON, getSeasonData, resolveSeason } from "../lib/f1";
+import { getCurrentSeason, getSeasonData, resolveSeason } from "../lib/f1";
 
 export const revalidate = 1800;
 
@@ -19,7 +19,7 @@ export default async function DriversPage({ searchParams }: { searchParams?: { s
             <DriverExplorer drivers={data.drivers} season={season} />
           </>
         ) : <EmptySeason season={season} />}
-        {season === CURRENT_SEASON && <p className="method-note">Statistics are calculated from completed Grand Prix results in the Jolpica F1 data feed. Driver photos are illustrative and may not depict the named driver.</p>}
+        {season === getCurrentSeason() && <p className="method-note">Statistics are calculated from completed Grand Prix results in the Jolpica F1 data feed. Driver photos are illustrative and may not depict the named driver.</p>}
       </main>
     </SiteFrame>
   );

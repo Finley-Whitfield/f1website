@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SUPPORTED_SEASONS } from "../lib/f1";
+import { getSupportedSeasons } from "../lib/f1";
 
 export default function SeasonPicker({
   season,
@@ -10,7 +10,7 @@ export default function SeasonPicker({
 }) {
   return (
     <div className="season-picker" aria-label="Choose championship season">
-      {SUPPORTED_SEASONS.map((year) => (
+      {getSupportedSeasons().map((year) => (
         <Link
           key={year}
           href={`${route}?season=${year}`}
