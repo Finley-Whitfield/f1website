@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Countdown from "./components/Countdown";
+import HomeHeroEntrance from "./components/HomeHeroEntrance";
 import Reveal from "./components/Reveal";
 import SeasonPicker from "./components/SeasonPicker";
 import SiteFrame from "./components/SiteFrame";
@@ -27,12 +28,12 @@ export default async function HomePage({
           <div className="hero-photo" />
           <div className="hero-scrim" />
           <div className="hero-lines" />
-          <div className="hero-inner">
-            <Reveal><div className="eyebrow"><span className="eyebrow-line" /> THE WORLD’S FASTEST SPORT <span className="eyebrow-line" /></div></Reveal>
-            <Reveal delay={0.12}><p className="section-kicker hero-season">{season} · FIA FORMULA ONE WORLD CHAMPIONSHIP</p><h1>THE EDGE<br />OF <span>EVERYTHING.</span></h1></Reveal>
-            <Reveal delay={0.22}><p className="home-hero-copy">Every lap. Every heartbeat. Every split-second that changes the game.<br />Live standings, race weekends and stories from the world of Formula One.</p><div className="hero-buttons"><Link className="button button-red" href={`/standings?season=${season}`}>View live standings <span>→</span></Link><Link className="button button-glass" href="/calendar">Explore the calendar</Link></div></Reveal>
+          <HomeHeroEntrance>
+            <div className="eyebrow"><span className="eyebrow-line" /> THE WORLD’S FASTEST SPORT <span className="eyebrow-line" /></div>
+            <p className="section-kicker hero-season">{season} · FIA FORMULA ONE WORLD CHAMPIONSHIP</p><h1>THE EDGE<br />OF <span>EVERYTHING.</span></h1>
+            <p className="home-hero-copy">Every lap. Every heartbeat. Every split-second that changes the game.<br />Live standings, race weekends and stories from the world of Formula One.</p><div className="hero-buttons"><Link className="button button-red" href={`/standings?season=${season}`}>View live standings <span>→</span></Link><Link className="button button-glass" href="/calendar">Explore the calendar</Link></div>
             <div className="hero-credits"><span>THE {season} SEASON, AS IT HAPPENS</span><span>DATA REFRESHES AUTOMATICALLY</span></div>
-          </div>
+          </HomeHeroEntrance>
         </section>
 
         <Reveal><section className="section-wrap home-season-strip">

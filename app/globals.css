@@ -525,7 +525,7 @@
   .circuit-history-row small{font-size:6px}
 }
 @media(prefers-reduced-motion:reduce){
-  .cinematic-reveal{opacity:1!important;filter:none!important;clip-path:none!important;transform:none!important}
+  .cinematic-reveal{filter:none!important;clip-path:none!important;transform:none!important}
   .cinematic-reveal[data-revealed="true"]:after{animation:none;transform:none}
   .scroll-progress{display:none}
 }

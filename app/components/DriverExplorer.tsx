@@ -33,10 +33,10 @@ function DriverCard({
       className="explorer-driver-card"
       style={{ "--team": getTeamColor(driver.constructorId) } as React.CSSProperties}
       layout
-      initial={reduceMotion ? false : { opacity: 0, y: 30, scale: 0.96, filter: "blur(10px)" }}
-      animate={reduceMotion || isInView ? { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" } : { opacity: 1, y: 30, scale: 0.96, filter: "blur(10px)", transition: { duration: 0 } }}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 30, scale: 0.96, filter: "blur(10px)" }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" } : reduceMotion ? { opacity: 0 } : { opacity: 1, y: 30, scale: 0.96, filter: "blur(10px)", transition: { duration: 0 } }}
       exit={reduceMotion ? undefined : { opacity: 0, y: 14, scale: 0.96, filter: "blur(8px)" }}
-      transition={{ duration: reduceMotion ? 0 : 0.52, delay: reduceMotion ? 0 : (index % 6) * 0.055, ease: [0.22, 1, 0.36, 1], layout: { duration: reduceMotion ? 0 : 0.35 } }}
+      transition={{ duration: reduceMotion ? 0.18 : 0.52, delay: reduceMotion ? 0 : (index % 6) * 0.055, ease: [0.22, 1, 0.36, 1], layout: { duration: reduceMotion ? 0 : 0.35 } }}
     >
       <Link className="explorer-driver-photo" href={`/drivers/${driver.id}?season=${season}`} style={{ backgroundImage: `linear-gradient(180deg,transparent 22%,rgba(6,7,9,.94)),url("${getDriverImageByName(`${driver.firstName} ${driver.lastName}`)}"),url("${getDriverImage(driver.id)}"),url("${getDriverImageFallback(driver.id)}")` }}>
         <span className="driver-number">{driver.number || String(index + 1).padStart(2, "0")}</span>
