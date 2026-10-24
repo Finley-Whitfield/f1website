@@ -6,6 +6,7 @@ const nextConfig = {
     pagesBufferLength: 16,
   },
   experimental: {
+    cpus: 1,
     optimizePackageImports: ["framer-motion"],
   },
 };

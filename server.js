@@ -2,16 +2,12 @@ const { createServer } = require("http");
 const { execFileSync, spawnSync } = require("child_process");
 const { existsSync, readFileSync, writeFileSync } = require("fs");
 const path = require("path");
-const next = require("next");
 
 const dev = process.env.NODE_ENV === "development";
 const hostname = process.env.HOST || "0.0.0.0";
 const port = Number.parseInt(process.env.PORT || process.env.SERVER_PORT || "3000", 10);
 const buildIdPath = path.join(__dirname, ".next", "BUILD_ID");
 const buildRevisionPath = path.join(__dirname, ".next", "APEX_BUILD_REVISION");
-const app = next({ dev, hostname, port });
-const handle = app.getRequestHandler();
-
 function getGitRevision() {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], {
@@ -56,6 +52,10 @@ try {
   console.error("Failed to build Apex Racing Hub:", error);
   process.exit(1);
 }
+
+const next = require("next");
+const app = next({ dev, hostname, port });
+const handle = app.getRequestHandler();
 
 app.prepare()
   .then(() => {
