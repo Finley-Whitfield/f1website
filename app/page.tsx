@@ -51,7 +51,7 @@ export default async function HomePage({
                 <div className="home-panel-head"><div><span>DRIVER CHAMPIONSHIP</span><small>{season} · {getSeasonStatus(data)}</small></div><Link href={`/standings?season=${season}`}>FULL TABLE <b>↗</b></Link></div>
                 {data.drivers.slice(0, 5).map((driver, index) => (
                   <Link href={`/drivers/${driver.id}?season=${season}`} className={`home-standing-row ${index === 0 ? "home-leader-row" : ""}`} key={driver.id}>
-                    <span className="home-position">{String(index + 1).padStart(2, "0")}</span><span className="home-driver-avatar" style={{ backgroundImage: `url("${getDriverImage(driver.id)}"),url("${getDriverImageByName(`${driver.firstName} ${driver.lastName}`)}"),url("${getDriverImageFallback(driver.id)}")` }} /><span className="home-driver-color" style={{ background: getTeamColor(driver.constructorId) }} />
+                    <span className="home-position">{String(index + 1).padStart(2, "0")}</span><span className="home-driver-avatar" style={{ backgroundImage: `url("${getDriverImageByName(`${driver.firstName} ${driver.lastName}`)}"),url("${getDriverImage(driver.id)}"),url("${getDriverImageFallback(driver.id)}")` }} /><span className="home-driver-color" style={{ background: getTeamColor(driver.constructorId) }} />
                     <span className="home-driver-name">{driver.firstName} <strong>{driver.lastName}</strong><small>{driver.constructorName}</small></span>
                     <span className="home-points-bar"><i style={{ width: `${leader ? (driver.points / leader.points) * 100 : 0}%`, background: getTeamColor(driver.constructorId) }} /></span>
                     <strong className="home-points">{driver.points}<small>PTS</small></strong>

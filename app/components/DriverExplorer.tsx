@@ -1,10 +1,57 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DriverStanding, getTeamColor } from "../lib/f1";
 import { getDriverImage, getDriverImageByName, getDriverImageFallback } from "../lib/site-images";
+
+function DriverCard({
+  driver,
+  index,
+  season,
+  favorite,
+  compared,
+  onToggleFavorite,
+  onToggleCompare,
+}: {
+  driver: DriverStanding;
+  index: number;
+  season: number;
+  favorite: boolean;
+  compared: boolean;
+  onToggleFavorite: () => void;
+  onToggleCompare: () => void;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: false, amount: 0.05 });
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.article
+      ref={ref}
+      className="explorer-driver-card"
+      style={{ "--team": getTeamColor(driver.constructorId) } as React.CSSProperties}
+      layout
+      initial={reduceMotion ? false : { opacity: 0, y: 30, scale: 0.96, filter: "blur(10px)" }}
+      animate={reduceMotion || isInView ? { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" } : { opacity: 1, y: 30, scale: 0.96, filter: "blur(10px)", transition: { duration: 0 } }}
+      exit={reduceMotion ? undefined : { opacity: 0, y: 14, scale: 0.96, filter: "blur(8px)" }}
+      transition={{ duration: reduceMotion ? 0 : 0.52, delay: reduceMotion ? 0 : (index % 6) * 0.055, ease: [0.22, 1, 0.36, 1], layout: { duration: reduceMotion ? 0 : 0.35 } }}
+    >
+      <Link className="explorer-driver-photo" href={`/drivers/${driver.id}?season=${season}`} style={{ backgroundImage: `linear-gradient(180deg,transparent 22%,rgba(6,7,9,.94)),url("${getDriverImageByName(`${driver.firstName} ${driver.lastName}`)}"),url("${getDriverImage(driver.id)}"),url("${getDriverImageFallback(driver.id)}")` }}>
+        <span className="driver-number">{driver.number || String(index + 1).padStart(2, "0")}</span>
+        <span className="driver-photo-name">{driver.firstName}<strong>{driver.lastName}</strong></span>
+      </Link>
+      <div className="explorer-driver-meta"><span><i style={{ background: getTeamColor(driver.constructorId) }} /> {driver.constructorName}</span><span>{driver.points} PTS</span></div>
+      <div className="explorer-driver-stats"><span><b>{driver.wins}</b><small>WINS</small></span><span><b>{driver.poles}</b><small>POLES</small></span><span><b>{driver.podiums}</b><small>PODIUMS</small></span><span><b>{driver.nationality}</b><small>NATIONALITY</small></span></div>
+      <div className="explorer-driver-actions">
+        <Link href={`/drivers/${driver.id}?season=${season}`}>DRIVER PROFILE ↗</Link>
+        <button aria-label={`${favorite ? "Remove from" : "Add to"} favourites`} aria-pressed={favorite} onClick={onToggleFavorite}>{favorite ? "♥ SAVED" : "♡ SAVE"}</button>
+        <button aria-pressed={compared} onClick={onToggleCompare}>{compared ? "✓ ADDED" : "+ COMPARE"}</button>
+      </div>
+    </motion.article>
+  );
+}
 
 export default function DriverExplorer({
   drivers,
@@ -42,28 +89,16 @@ export default function DriverExplorer({
         <motion.div className="explorer-grid" layout>
           <AnimatePresence mode="popLayout">
             {filtered.map((driver, index) => (
-              <motion.article
-                className="explorer-driver-card"
-                style={{ "--team": getTeamColor(driver.constructorId) } as React.CSSProperties}
+              <DriverCard
                 key={driver.id}
-                layout
-                initial={{ opacity: 0, y: 30, scale: 0.96, filter: "blur(10px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: 14, scale: 0.96, filter: "blur(8px)" }}
-                transition={{ duration: 0.52, delay: (index % 6) * 0.055, ease: [0.22, 1, 0.36, 1], layout: { duration: 0.35 } }}
-              >
-                <Link className="explorer-driver-photo" href={`/drivers/${driver.id}?season=${season}`} style={{ backgroundImage: `linear-gradient(180deg,transparent 22%,rgba(6,7,9,.94)),url("${getDriverImage(driver.id)}"),url("${getDriverImageByName(`${driver.firstName} ${driver.lastName}`)}"),url("${getDriverImageFallback(driver.id)}")` }}>
-                  <span className="driver-number">{driver.number || String(index + 1).padStart(2, "0")}</span>
-                  <span className="driver-photo-name">{driver.firstName}<strong>{driver.lastName}</strong></span>
-                </Link>
-                <div className="explorer-driver-meta"><span><i style={{ background: getTeamColor(driver.constructorId) }} /> {driver.constructorName}</span><span>{driver.points} PTS</span></div>
-                <div className="explorer-driver-stats"><span><b>{driver.wins}</b><small>WINS</small></span><span><b>{driver.poles}</b><small>POLES</small></span><span><b>{driver.podiums}</b><small>PODIUMS</small></span><span><b>{driver.nationality}</b><small>NATIONALITY</small></span></div>
-                <div className="explorer-driver-actions">
-                  <Link href={`/drivers/${driver.id}?season=${season}`}>DRIVER PROFILE ↗</Link>
-                  <button aria-label={`${favorites.includes(driver.id) ? "Remove from" : "Add to"} favourites`} aria-pressed={favorites.includes(driver.id)} onClick={() => toggleFavorite(driver.id)}>{favorites.includes(driver.id) ? "♥ SAVED" : "♡ SAVE"}</button>
-                  <button aria-pressed={comparison.includes(driver.id)} onClick={() => toggleCompare(driver.id)}>{comparison.includes(driver.id) ? "✓ ADDED" : "+ COMPARE"}</button>
-                </div>
-              </motion.article>
+                driver={driver}
+                index={index}
+                season={season}
+                favorite={favorites.includes(driver.id)}
+                compared={comparison.includes(driver.id)}
+                onToggleFavorite={() => toggleFavorite(driver.id)}
+                onToggleCompare={() => toggleCompare(driver.id)}
+              />
             ))}
           </AnimatePresence>
         </motion.div>

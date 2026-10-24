@@ -101,6 +101,9 @@ type ResultsResponse = {
 const API_ROOT = "https://api.jolpi.ca/ergast/f1";
 const SEASON_REVALIDATE_SECONDS = 1800;
 const HISTORY_REVALIDATE_SECONDS = 86400;
+const seasonDriverExclusions: Record<number, ReadonlySet<string>> = {
+  2026: new Set(["albon", "tsunoda"]),
+};
 
 async function fetchF1Endpoint<T>(
   path: string,
@@ -398,7 +401,8 @@ export async function getSeasonData(season: number): Promise<SeasonData> {
     }
   }
 
-  const drivers: DriverStanding[] = driverRows.map((entry) => {
+  const excludedDrivers = seasonDriverExclusions[season] ?? new Set<string>();
+  const drivers: DriverStanding[] = driverRows.filter((entry) => !excludedDrivers.has(entry.Driver.driverId)).map((entry) => {
     const constructor = entry.Constructors[0];
     const fullName = `${entry.Driver.givenName} ${entry.Driver.familyName}`;
     return {

@@ -14,6 +14,10 @@ const raceFallbacks = [
   "photo-1500534314209-a25ddb2bd429",
 ];
 
+const driverImageOverrides: Record<string, string> = {
+  "andrea kimi antonelli": "Andrea_Kimi_Antonelli.avif",
+};
+
 function stableIndex(value: string, length: number): number {
   return Array.from(value).reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 0) % length;
 }
@@ -23,6 +27,9 @@ export function getDriverImage(driverId: string): string {
 }
 
 export function getDriverImageByName(driverName: string): string {
+  const normalizedName = driverName.trim().toLowerCase().replace(/\s+/g, " ");
+  const override = driverImageOverrides[normalizedName];
+  if (override) return `/images/drivers/${encodeURIComponent(override)}`;
   const filename = driverName.trim().replace(/\s+/g, "_");
   return `/images/drivers/${encodeURIComponent(filename)}.jpg`;
 }

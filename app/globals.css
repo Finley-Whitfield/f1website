@@ -529,3 +529,54 @@
   .cinematic-reveal[data-revealed="true"]:after{animation:none;transform:none}
   .scroll-progress{display:none}
 }
+
+/* Race-broadcast motion language */
+:root{--telemetry:#a8f36a}
+.home-hero:before{position:absolute;inset:0;z-index:1;content:"";pointer-events:none;opacity:.2;background-image:linear-gradient(#ffffff0a 1px,transparent 1px),linear-gradient(90deg,#ffffff0a 1px,transparent 1px);background-size:68px 68px;mask-image:linear-gradient(90deg,#000,transparent 78%)}
+.home-hero:after{mix-blend-mode:normal;opacity:.56}
+.home-hero .hero-inner{padding-top:12px}
+.home-hero .hero-season{display:flex;align-items:center;gap:10px;color:var(--telemetry);font-size:8px;letter-spacing:2px}
+.home-hero .hero-season:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--telemetry);box-shadow:0 0 13px #a8f36a88}
+.home-hero h1{animation:heroTitleLock .8s .1s cubic-bezier(.22,1,.36,1) both}
+.home-hero .hero-credits{border-top:1px solid #ffffff32;padding-top:13px}
+.home-hero .hero-credits span:first-child:before{content:"";display:inline-block;width:20px;height:2px;margin:0 9px 2px 0;background:var(--red)}
+.page-heading{padding-top:3px}
+.page-heading:before{position:absolute;right:0;top:10px;content:"APEX / RACE CONTROL";font-size:7px;letter-spacing:1.5px;color:var(--muted)}
+.data-attribution>span:first-child{color:var(--telemetry)}
+.data-attribution .live-dot{background:var(--telemetry);box-shadow:0 0 11px #a8f36a80}
+.cinematic-reveal{isolation:isolate}
+.cinematic-reveal[data-revealed="true"]:before{position:absolute;z-index:4;inset:0;content:"";pointer-events:none;background:linear-gradient(108deg,transparent 0 34%,#ffffff12 35%,#e1060030 36%,transparent 39% 62%,#a8f36a18 63%,transparent 66%);mix-blend-mode:screen;animation:revealSignal .62s steps(2,end) both}
+.cinematic-reveal[data-revealed="true"] :is(h1,h2){animation:headlineGlitch .58s steps(2,end) both}
+.cinematic-reveal[data-revealed="true"] :is(.home-race-backdrop,.profile-portrait,.team-profile-art,.news-result-image,.circuit-list-art){animation:imageMaskIn .82s cubic-bezier(.22,1,.36,1) both}
+.home-race-card,.home-leader-card,.news-result-card,.circuit-list-card,.pro-team-card,.explorer-driver-card{position:relative}
+.home-race-card,.home-leader-card,.news-result-card,.pro-team-card,.explorer-driver-card{transition:transform .35s cubic-bezier(.22,1,.36,1),border-color .35s,box-shadow .35s}
+.news-result-card:hover,.pro-team-card:hover,.explorer-driver-card:hover{transform:translateY(-5px)}
+.news-result-card:hover{box-shadow:0 18px 55px #0005}
+.news-result-image,.circuit-list-art,.race-list-visual,.explorer-driver-photo,.profile-portrait,.home-race-backdrop{will-change:transform}
+.news-result-image,.circuit-list-art{transition:background-position .7s cubic-bezier(.22,1,.36,1),filter .45s}
+.news-result-card:hover .news-result-image,.circuit-list-card:hover .circuit-list-art{background-position:center 58%;filter:saturate(1.18)}
+.race-list-card{border-left:1px solid transparent;transition:background .25s,border-color .25s,transform .35s cubic-bezier(.22,1,.36,1)}
+.race-list-card:hover{border-left-color:var(--red);background:linear-gradient(90deg,#e1060012,transparent 62%)}
+.race-list-round{color:var(--telemetry)}
+.home-panel-head>div>span,.home-panel-foot>span,.home-standing-row .home-position{font-variant-numeric:tabular-nums}
+.home-points-bar i,.standings-full-bar i{box-shadow:0 0 12px currentColor}
+.page-route{backface-visibility:hidden}
+.race-transition{overflow:hidden}
+.race-wipe-panel{position:absolute;z-index:1;left:-10vw;top:44%;width:120vw;height:15vh;pointer-events:none;transform:skewX(-18deg);clip-path:polygon(0 0,100% 0,96% 100%,0 100%)}
+.race-wipe-panel-red{background:linear-gradient(90deg,#720400,#e10600 48%,#ff332c)}
+.race-wipe-panel-carbon{top:59%;height:2px;background:linear-gradient(90deg,transparent,#ffffffb5,transparent);box-shadow:0 0 24px #e10600a0}
+.race-start{z-index:3}
+.race-lights span{box-shadow:inset 0 0 11px #0008,0 0 0 4px #ffffff04}
+@keyframes heroTitleLock{from{opacity:0;transform:translateY(22px);filter:blur(8px);clip-path:inset(0 0 35% 0)}to{opacity:1;transform:translateY(0);filter:blur(0);clip-path:inset(0)}}
+@keyframes revealSignal{0%{opacity:0;transform:translateX(-2%)}18%{opacity:.8;transform:translateX(1%)}42%{opacity:.15;transform:translateX(-1%)}100%{opacity:0;transform:translateX(2%)}}
+@keyframes headlineGlitch{0%,100%{text-shadow:none;transform:translateX(0)}18%{text-shadow:2px 0 #e10600,-2px 0 #a8f36a;transform:translateX(1px)}37%{text-shadow:-1px 0 #e10600,1px 0 #a8f36a;transform:translateX(-1px)}58%{text-shadow:none;transform:translateX(0)}}
+@keyframes imageMaskIn{from{clip-path:inset(0 0 22% 0);transform:scale(1.045);filter:saturate(.65)}to{clip-path:inset(0);transform:scale(1);filter:saturate(1)}}
+@media(max-width:760px){
+  .page-heading:before{top:4px;font-size:6px}
+  .home-hero:before{background-size:48px 48px;opacity:.12}
+  .race-wipe-panel{height:11vh}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-hero .hero-photo,.home-hero h1,.cinematic-reveal[data-revealed="true"]:before,.cinematic-reveal[data-revealed="true"] :is(h1,h2),.cinematic-reveal[data-revealed="true"] :is(.home-race-backdrop,.profile-portrait,.team-profile-art,.news-result-image,.circuit-list-art){animation:none!important}
+  .race-wipe-panel{display:none}
+}

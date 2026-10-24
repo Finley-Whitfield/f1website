@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useAnimationControls, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls, useReducedMotion, useScroll } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
@@ -65,6 +65,7 @@ export default function SiteFrame({
   const [query, setQuery] = useState("");
   const [transitioning, setTransitioning] = useState(false);
   const [transitionKey, setTransitionKey] = useState(0);
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
   const navigate = useCallback((href: string) => {
@@ -74,12 +75,16 @@ export default function SiteFrame({
       return;
     }
     setMenuOpen(false);
-    setTransitionKey((value) => value + 1);
-    setTransitioning(true);
     const destination = new URL(href, window.location.href);
     if (!destination.searchParams.has("season")) destination.searchParams.set("season", String(season));
+    if (reduceMotion) {
+      router.push(`${destination.pathname}${destination.search}${destination.hash}`);
+      return;
+    }
+    setTransitionKey((value) => value + 1);
+    setTransitioning(true);
     window.setTimeout(() => router.push(`${destination.pathname}${destination.search}${destination.hash}`), 1450);
-  }, [pathname, router, season, transitioning]);
+  }, [pathname, reduceMotion, router, season, transitioning]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -174,10 +179,10 @@ export default function SiteFrame({
         <motion.div
           className="page-route"
           key={`${pathname}?${searchParams.toString()}`}
-          initial={{ opacity: 0, y: 18, filter: "blur(12px)", scale: 0.992 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 18, filter: "blur(12px)", scale: 0.992 }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
-          exit={{ opacity: 0, y: -10, filter: "blur(8px)", scale: 0.996 }}
-          transition={{ duration: 0.46, ease: [0.22, 1, 0.36, 1] }}
+          exit={reduceMotion ? undefined : { opacity: 0, y: -10, filter: "blur(8px)", scale: 0.996 }}
+          transition={{ duration: reduceMotion ? 0 : 0.46, ease: [0.22, 1, 0.36, 1] }}
         >
           {children}
         </motion.div>
@@ -208,6 +213,8 @@ export default function SiteFrame({
             transition={{ duration: 0.48, ease: [0.76, 0, 0.24, 1] }}
             aria-label="Race start page transition"
           >
+            <motion.span className="race-wipe-panel race-wipe-panel-red" initial={{ x: "-120%" }} animate={{ x: ["-120%", "0%", "120%"] }} transition={{ duration: 1.1, times: [0, 0.48, 1], ease: [0.76, 0, 0.24, 1] }} />
+            <motion.span className="race-wipe-panel race-wipe-panel-carbon" initial={{ x: "120%" }} animate={{ x: ["120%", "0%", "-120%"] }} transition={{ duration: 1.1, delay: 0.08, times: [0, 0.5, 1], ease: [0.76, 0, 0.24, 1] }} />
             <div className="race-start">
               <span>APEX RACING HUB <i>·</i> RACE START</span>
               <RaceStartLights cycle={transitionKey} />
