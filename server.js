@@ -1,7 +1,7 @@
 const { createServer } = require("http");
 const next = require("next");
 
-const dev = process.env.NODE_ENV !== "production";
+const dev = process.env.NODE_ENV === "development";
 const hostname = process.env.HOST || "0.0.0.0";
 const port = Number.parseInt(process.env.PORT || process.env.SERVER_PORT || "3000", 10);
 const app = next({ dev, hostname, port });
@@ -18,10 +18,7 @@ app.prepare()
       handle(request, response);
     })
       .listen(port, hostname, () => {
-        console.log(`Apex Racing Hub is listening on ${hostname}:${port}`);
-        if (hostname === "0.0.0.0" || hostname === "::") {
-          console.log(`Local URL: http://localhost:${port}`);
-        }
+        console.log(`Apex Racing Hub is listening on ${hostname}:${port} (${dev ? "development" : "production"})`);
         if (process.env.PUBLIC_URL) {
           console.log(`Public URL: ${process.env.PUBLIC_URL}`);
         }
