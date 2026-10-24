@@ -4,7 +4,7 @@ import PageHeading from "../components/PageHeading";
 import SiteFrame from "../components/SiteFrame";
 import { getSeasonData, getTeamColor, resolveSeason } from "../lib/f1";
 import Reveal from "../components/Reveal";
-import { getDriverImage, getDriverImageFallback } from "../lib/site-images";
+import { getDriverImage, getDriverImageByName, getDriverImageFallback } from "../lib/site-images";
 
 export const revalidate = 1800;
 
@@ -28,7 +28,7 @@ export default async function StandingsPage({ searchParams }: { searchParams?: {
         const label = isDriver ? `${entry.firstName} ${entry.lastName}` : entry.name;
         const sublabel = isDriver ? entry.constructorName : entry.nationality;
         return <Reveal className="standing-row-reveal" key={entry.id} delay={Math.min(index, 7) * 0.045}><Link className={`standings-full-row ${index === 0 ? "standings-first" : ""}`} href={href}>
-          <span className="standing-position">{String(index + 1).padStart(2, "0")}</span><span className="standings-full-name">{isDriver && <span className="standing-avatar" style={{ backgroundImage: `url("${getDriverImage(entry.id)}"),url("${getDriverImageFallback(entry.id)}")` }} aria-hidden="true" />}<i style={{ background: team }} /><span><strong>{label}</strong><small>{sublabel}</small></span></span>
+          <span className="standing-position">{String(index + 1).padStart(2, "0")}</span><span className="standings-full-name">{isDriver && <span className="standing-avatar" style={{ backgroundImage: `url("${getDriverImageByName(label)}"),url("${getDriverImage(entry.id)}"),url("${getDriverImageFallback(entry.id)}")` }} aria-hidden="true" />}<i style={{ background: team }} /><span><strong>{label}</strong><small>{sublabel}</small></span></span>
           <span className="standings-full-bar"><i style={{ background: team, width: `${(entry.points / maxPoints) * 100}%` }} /></span><span className="standings-wins">{entry.wins}<small>WINS</small></span><strong className="standings-full-points">{entry.points}<small>PTS</small></strong>
         </Link></Reveal>;
       })}

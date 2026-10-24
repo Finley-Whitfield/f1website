@@ -15,6 +15,8 @@ const raceFallbacks = [
 ];
 
 const driverImageOverrides: Record<string, string> = {
+  "alex albon": "Alex-Albon.jpg",
+  "alexander albon": "Alex-Albon.jpg",
   "andrea kimi antonelli": "Andrea_Kimi_Antonelli.avif",
 };
 
