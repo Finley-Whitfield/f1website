@@ -580,3 +580,8 @@
   .home-hero .hero-photo,.home-hero h1,.cinematic-reveal[data-revealed="true"]:before,.cinematic-reveal[data-revealed="true"] :is(h1,h2),.cinematic-reveal[data-revealed="true"] :is(.home-race-backdrop,.profile-portrait,.team-profile-art,.news-result-image,.circuit-list-art){animation:none!important}
   .race-wipe-panel{display:none}
 }
+@media(max-width:760px){
+  .home-hero{height:auto;min-height:0;max-height:none;padding:88px 0 30px;align-items:flex-start}
+  .home-hero .hero-inner{margin:0 auto}
+  .home-hero .hero-credits{position:relative;inset:auto;display:grid;gap:9px;margin-top:28px}
+}
