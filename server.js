@@ -9,9 +9,22 @@ const handle = app.getRequestHandler();
 
 app.prepare()
   .then(() => {
-    createServer((request, response) => handle(request, response))
+    createServer((request, response) => {
+      response.on("finish", () => {
+        if (response.statusCode === 404) {
+          console.warn(`404 ${request.method} ${request.url} (host: ${request.headers.host || "unknown"})`);
+        }
+      });
+      handle(request, response);
+    })
       .listen(port, hostname, () => {
-        console.log(`Apex Racing Hub is running at http://${hostname}:${port}`);
+        console.log(`Apex Racing Hub is listening on ${hostname}:${port}`);
+        if (hostname === "0.0.0.0" || hostname === "::") {
+          console.log(`Local URL: http://localhost:${port}`);
+        }
+        if (process.env.PUBLIC_URL) {
+          console.log(`Public URL: ${process.env.PUBLIC_URL}`);
+        }
       });
   })
   .catch((error) => {
